@@ -1,0 +1,39 @@
+import { NgModule, Component, enableProdMode } from '@angular/core';
+
+import { FeatureCollection, Service } from './app.service';
+
+if(!/localhost/.test(document.location.host)) {
+    enableProdMode();
+}
+
+@Component({
+    selector: 'demo-app',
+    providers: [ Service ],
+    templateUrl: 'app.component.html',
+    styleUrls: ['app.component.css']
+})
+export class AppComponent {
+    projection: any;
+    roomsData: FeatureCollection;
+    buildingData: FeatureCollection;
+    
+    constructor(service: Service) {
+        this.roomsData = service.getRoomsData();
+        this.buildingData = service.getBuildingData();
+        this.projection = {
+            to(coordinates) {
+                return [coordinates[0] / 100, coordinates[1] / 100];
+            },
+            from(coordinates) {
+                return [coordinates[0] * 100, coordinates[1] * 100];
+            }
+        };
+    }
+
+    customizeTooltip(arg) {
+        if(arg.layer.name === "rooms")
+            return {
+                text: "Square: " + arg.attribute("square") + " ft&#178"
+            };
+    }
+}
